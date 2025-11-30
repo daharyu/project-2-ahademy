@@ -13,6 +13,7 @@ import { Button } from './ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { getCart } from '@/services/resto.service';
 import { useRouter } from 'next/navigation';
+import { UserData } from '@/entities/auth';
 
 interface HeaderSectionProps {
   isHomePage?: boolean; // true = transparent on top, false = always solid
@@ -34,9 +35,15 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
     [0, 50],
     ['blur(0px)', 'blur(12px)']
   );
+  const [parsedUser, setParsedUser] = useState<UserData>();
 
   useEffect(() => {
     const handleScroll = () => {
+      const user =
+        localStorage.getItem('user') || sessionStorage.getItem('user') || null;
+      const parsedData = user ? JSON.parse(user) : null;
+
+      setParsedUser(parsedData);
       setIsScrolled(window.scrollY > 50);
     };
     handleScroll();
@@ -57,9 +64,6 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
 
   // Ini intinya buat kasih tahu kalau program dijalankan di browser kalau ga dapet issue tapi malah jadi hydration
   // if (typeof window === 'undefined') return null;
-  const user =
-    localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-  const parsedUser = user ? JSON.parse(user) : null;
   const { data, isLoading } = useQuery({
     queryKey: ['cart', parsedUser?.token],
     queryFn: () => getCart(parsedUser?.token as string),
@@ -182,7 +186,7 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
               />
 
               <p className={`text-md leading-[30px] font-bold tracking-tight`}>
-                {parsedUser.user.name}
+                {parsedUser?.user.name}
               </p>
             </div>
 
