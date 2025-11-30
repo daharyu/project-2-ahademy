@@ -1,22 +1,31 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 import CustomCard from '@/components/customCard';
 import FooterSection from '@/components/footer';
 import HeaderSection from '@/components/header';
-import imgStore from '@/public/images/store.svg';
+import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { getCart as getCartApi } from '@/entities/resto';
-import { addToCart, getCart } from '@/services/resto.service';
+import imgStore from '@/public/images/store.svg';
+import { getCart } from '@/services/resto.service';
 import { useQuery } from '@tanstack/react-query';
-import Image from 'next/image';
 import { ChevronRight, Minus, Plus } from 'lucide-react';
-import { formatRupiah } from '../[id]/neededHook';
-import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';
+import Image from 'next/image';
+import { formatRupiah } from '../[id]/neededHook';
+import { useState, useEffect } from 'react';
+import { UserData } from '@/entities/auth';
 
 const CartPage = () => {
-  const user =
-    localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-  const parsedUser = user ? JSON.parse(user) : null;
+  const [parsedUser, setParsedUser] = useState<UserData>();
+
+  useEffect(() => {
+    const user =
+      localStorage.getItem('user') || sessionStorage.getItem('user') || null;
+    const parsedData = user ? JSON.parse(user) : null;
+
+    setParsedUser(parsedData);
+  }, []);
   const { data, isLoading } = useQuery({
     queryKey: ['cart', parsedUser?.token],
     queryFn: () => {

@@ -16,3 +16,14 @@ export type UpdateProfile = {
   currentPassword: string | undefined;
   newPassword: string | undefined;
 };
+
+export type UserData = {
+  user: {
+    id: string | number;
+    name: string;
+    email: string;
+    phone: string;
+    createdAt: string;
+  };
+  token: string;
+};

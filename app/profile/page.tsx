@@ -5,6 +5,7 @@ import FooterSection from '@/components/footer';
 import HeaderSection from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { UserData } from '@/entities/auth';
 import OutImage from '@/public/images/arrow-circle-broken-left.svg';
 import meImg from '@/public/images/me.svg';
 import { UpdateUser } from '@/services/users.service';
@@ -22,10 +23,15 @@ const ProfilePage = () => {
   };
 
   const router = useRouter();
-  const user =
-    localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-  if (!user) router.push('/');
-  const parsedUser = user ? JSON.parse(user) : null;
+  const [parsedUser, setParsedUser] = useState<UserData>();
+
+  useEffect(() => {
+    const user =
+      localStorage.getItem('user') || sessionStorage.getItem('user') || null;
+    const parsedData = user ? JSON.parse(user) : null;
+
+    setParsedUser(parsedData);
+  }, []);
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
@@ -144,7 +150,7 @@ const ProfilePage = () => {
             />
 
             <p className={`text-md leading-[30px] font-bold tracking-tight`}>
-              {parsedUser.user.name}
+              {parsedUser?.user.name}
             </p>
           </div>
 
@@ -188,7 +194,7 @@ const ProfilePage = () => {
                   Name
                 </p>
                 <p className='md:text-md text-sm leading-7 font-bold md:leading-[30px] md:tracking-tighter'>
-                  {parsedUser.user.name}
+                  {parsedUser?.user.name}
                 </p>
               </div>
               <div className='flex justify-between'>
@@ -196,7 +202,7 @@ const ProfilePage = () => {
                   Email
                 </p>
                 <p className='md:text-md text-sm leading-7 font-bold md:leading-[30px] md:tracking-tighter'>
-                  {parsedUser.user.email}
+                  {parsedUser?.user.email}
                 </p>
               </div>
               <div className='flex justify-between'>
@@ -204,7 +210,7 @@ const ProfilePage = () => {
                   Name
                 </p>
                 <p className='md:text-md text-sm leading-7 font-bold md:leading-[30px] md:tracking-tighter'>
-                  {parsedUser.user.phone}
+                  {parsedUser?.user.phone}
                 </p>
               </div>
             </div>

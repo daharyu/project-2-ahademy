@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 import CustomCard from '@/components/customCard';
 import { Button } from '@/components/ui/button';
+import { UserData } from '@/entities/auth';
 import { Cart, Food } from '@/entities/resto';
 import imgBag from '@/public/images/Bag.svg';
 import { addToCart } from '@/services/resto.service';
@@ -11,19 +13,23 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useRestoDetail } from './getData';
 import { formatRupiah } from './neededHook';
-import { i } from 'motion/react-client';
 
 const MenuSection = () => {
-  const user =
-    localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-  const parsedUser = user ? JSON.parse(user) : null;
+  const [parsedUser, setParsedUser] = useState<UserData>();
+
+  useEffect(() => {
+    const user =
+      localStorage.getItem('user') || sessionStorage.getItem('user') || null;
+    const parsedData = user ? JSON.parse(user) : null;
+
+    setParsedUser(parsedData);
+  }, []);
   const router = useRouter();
   const { resto } = useRestoDetail();
   const [menuType, setMenuType] = useState('all');
   const menu = resto?.menus;
 
   const [tempCart, setTempCart] = useState<Cart[]>([]);
-  useEffect(() => console.log(tempCart), [tempCart]);
   const [total, setTotal] = useState(0);
   const filteredMenu = useMemo(() => {
     if (menuType === 'all') return menu;
