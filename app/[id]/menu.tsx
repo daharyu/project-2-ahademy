@@ -1,29 +1,23 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 import CustomCard from '@/components/customCard';
 import { Button } from '@/components/ui/button';
 import { UserData } from '@/entities/auth';
 import { Cart, Food } from '@/entities/resto';
+import { useLoginUser } from '@/hooks/checkLoginUser';
 import imgBag from '@/public/images/Bag.svg';
-import { addToCart } from '@/services/resto.service';
 import { Minus, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRestoDetail } from './getData';
 import { formatRupiah } from './neededHook';
+import { useAddToCartMutation } from '@/hooks/cartMutation';
 
 const MenuSection = () => {
-  const [parsedUser, setParsedUser] = useState<UserData>();
+  const parsedUser: UserData | null = useLoginUser();
+  const { mutateAsync: addItemToCart } = useAddToCartMutation();
 
-  useEffect(() => {
-    const user =
-      localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-    const parsedData = user ? JSON.parse(user) : null;
-
-    setParsedUser(parsedData);
-  }, []);
   const router = useRouter();
   const { resto } = useRestoDetail();
   const [menuType, setMenuType] = useState('all');
@@ -43,9 +37,14 @@ const MenuSection = () => {
     }
 
     try {
-      const result = await addToCart(parsedUser.token, tempCart);
+      const requests = tempCart.map((item) => {
+        return addItemToCart(item);
+      });
+
+      const result = await Promise.all(requests);
       setTempCart([]);
       setTotal(0);
+
       return result;
     } catch (error) {
       console.error(error);
@@ -120,7 +119,7 @@ const MenuSection = () => {
                     i.menuId === item.id && i.restaurantId === resto.id
                       ? {
                           ...i,
-                          quantity: (Number(i.quantity) + 1).toString(),
+                          quantity: Number(i.quantity) + 1,
                         }
                       : i
                   );
@@ -128,7 +127,7 @@ const MenuSection = () => {
 
                 return [
                   ...prev,
-                  { restaurantId: resto.id, menuId: item.id, quantity: '1' },
+                  { restaurantId: resto.id, menuId: item.id, quantity: 1 },
                 ];
               });
 
@@ -142,7 +141,7 @@ const MenuSection = () => {
                   if (c.restaurantId === resto.id && c.menuId === item.id) {
                     const newQty = Number(c.quantity) - 1;
                     if (newQty > 0) {
-                      acc.push({ ...c, quantity: newQty.toString() });
+                      acc.push({ ...c, quantity: newQty });
                     }
                     // if newQty <= 0 → we simply don't push it back → removed
                   } else {

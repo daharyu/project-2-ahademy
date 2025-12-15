@@ -3,6 +3,7 @@ import { Nunito } from 'next/font/google';
 import './globals.css';
 import clsx from 'clsx';
 import QueryProvider from '../components/QueryProvider';
+import { Toaster } from '@/components/ui/sonner';
 
 const nunitoFont = Nunito({
   variable: '--font-family-nunito',
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang='en'>
       <body className={clsx(nunitoFont.variable, `antialiased`)}>
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

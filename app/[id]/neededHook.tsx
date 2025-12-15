@@ -1,3 +1,8 @@
+import { Cart } from '@/entities/resto';
+import { useLoginUser } from '@/hooks/checkLoginUser';
+import { addToCart } from '@/services/resto.service';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+
 export const formatRupiah = (amount: number | string) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -25,4 +30,19 @@ export const formatDateID = (isoString: string): string => {
       hour12: false,
     })
   );
+};
+
+export const useAddToCartMutation = () => {
+  const queryClient = useQueryClient();
+  const user = useLoginUser();
+
+  return useMutation({
+    mutationFn: (item: Cart) => addToCart(user!.token, item),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+    onError: (error) => {
+      console.error('Failed to add item:', error);
+    },
+  });
 };

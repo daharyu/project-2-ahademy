@@ -1,11 +1,16 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 import CustomCard from '@/components/customCard';
 import FooterSection from '@/components/footer';
 import HeaderSection from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { UserData } from '@/entities/auth';
 import { getCart as getCartApi } from '@/entities/resto';
+import {
+  useDeleteToCartMutation,
+  useUpdateToCartMutation,
+} from '@/hooks/cartMutation';
+import { useLoginUser } from '@/hooks/checkLoginUser';
 import imgStore from '@/public/images/store.svg';
 import { getCart } from '@/services/resto.service';
 import { useQuery } from '@tanstack/react-query';
@@ -13,19 +18,13 @@ import { ChevronRight, Minus, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import { formatRupiah } from '../[id]/neededHook';
-import { useState, useEffect } from 'react';
-import { UserData } from '@/entities/auth';
+import Link from 'next/link';
 
 const CartPage = () => {
-  const [parsedUser, setParsedUser] = useState<UserData>();
+  const parsedUser: UserData | null = useLoginUser();
+  const { mutateAsync: updateCart } = useUpdateToCartMutation();
+  const { mutateAsync: deleteCart } = useDeleteToCartMutation();
 
-  useEffect(() => {
-    const user =
-      localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-    const parsedData = user ? JSON.parse(user) : null;
-
-    setParsedUser(parsedData);
-  }, []);
   const { data, isLoading } = useQuery({
     queryKey: ['cart', parsedUser?.token],
     queryFn: () => {
@@ -33,6 +32,18 @@ const CartPage = () => {
     },
   });
   const cart: getCartApi[] = data?.data.cart || [];
+
+  const handleUpdate = async (id: number, quantity: number) => {
+    if (quantity < 1) deleteCart({ id });
+    else {
+      try {
+        updateCart({ id, quantity });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
   if (isLoading)
     return (
       <div className='fixed top-0 left-0 flex h-screen w-screen items-center justify-center'>
@@ -51,6 +62,14 @@ const CartPage = () => {
         <h1 className='text-display-lg md:text-display-2xl leading-[text-display-lg-height] font-bold md:leading-[text-display-2xl-height]'>
           My Cart
         </h1>
+
+        {cart.length === 0 && (
+          <div className='flex h-[100px] items-center justify-center'>
+            <p className='text-md text-primary-100 leading-[30px] font-extrabold md:text-lg md:leading-8 md:tracking-tight'>
+              Cart is empty
+            </p>
+          </div>
+        )}
 
         {cart.map((item, index: number) => (
           <CustomCard
@@ -92,13 +111,21 @@ const CartPage = () => {
                   <Button
                     variant='outline'
                     className='flex size-9 items-center justify-center rounded-full p-2 md:size-10'
+                    onClick={() =>
+                      handleUpdate(Number(menu.id), Number(menu.quantity) - 1)
+                    }
                   >
                     <Minus size={24} />
                   </Button>
                   <span className='text-md leading-[30px] font-semibold md:text-lg md:leading-[30px]'>
                     {menu.quantity}
                   </span>
-                  <Button className='bg-primary-100 flex size-9 items-center justify-center rounded-full p-2 md:size-10'>
+                  <Button
+                    className='bg-primary-100 flex size-9 items-center justify-center rounded-full p-2 md:size-10'
+                    onClick={() =>
+                      handleUpdate(Number(menu.id), Number(menu.quantity) + 1)
+                    }
+                  >
                     <Plus size={24} />
                   </Button>
                 </motion.div>
@@ -118,9 +145,11 @@ const CartPage = () => {
               </div>
 
               {/* Button */}
-              <Button className='bg-primary-100 md:text-md h-10 w-full text-sm leading-7 font-bold text-white md:h-11 md:w-60 md:leading-[30px]'>
-                Checkout
-              </Button>
+              <Link href='/checkout'>
+                <Button className='bg-primary-100 md:text-md h-10 w-full text-sm leading-7 font-bold text-white md:h-11 md:w-60 md:leading-[30px]'>
+                  Checkout
+                </Button>
+              </Link>
             </div>
           </CustomCard>
         ))}

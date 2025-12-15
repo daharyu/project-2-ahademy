@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { axiosInstance } from '@/api/axiosInstance';
+import { axiosAuth } from '@/api/axiosClientInstance';
 import { UpdateProfile } from '@/entities/auth';
 
 type LoginUser = {
@@ -19,7 +19,7 @@ export const LoginUser = async (props: LoginUser) => {
     const formData = new FormData();
     formData.append('email', props.email);
     formData.append('password', props.password);
-    const response = await axiosInstance.post('/login', formData);
+    const response = await axiosAuth.post('/auth/login', formData);
     console.log('Response:', response.data);
     return response.data;
   } catch (error) {
@@ -34,7 +34,7 @@ export const RegisterUser = async (props: RegisterUser) => {
     formData.append('email', props.email);
     formData.append('phone', props.phone);
     formData.append('password', props.password);
-    const response = await axiosInstance.post('/register', formData);
+    const response = await axiosAuth.post('/auth/register', formData);
     console.log('Response:', response.data);
     return response.data;
   } catch (error) {
@@ -53,13 +53,17 @@ export const UpdateUser = async (props: UpdateProfile) => {
 
     if (!token) throw new Error('No token found');
 
-    const payload: any = {};
-    if (props.name) payload.name = props.name;
-    if (props.phone) payload.phone = props.phone;
-    if (props.currentPassword) payload.currentPassword = props.currentPassword;
-    if (props.newPassword) payload.newPassword = props.newPassword;
+    const payload: Partial<UpdateProfile> = {};
+    if (props.name !== undefined) payload.name = props.name;
+    if (props.phone !== undefined) payload.phone = props.phone;
+    if (props.email !== undefined) payload.email = props.email;
+    if (props.avatar !== undefined) payload.avatar = props.avatar; // 'avatar' key
 
-    const response = await axiosInstance.put('/updateProfile', payload, {
+    if (Object.keys(payload).length === 0) {
+      throw new Error('Update payload is empty');
+    }
+
+    const response = await axiosAuth.put('/auth/profile', payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -72,5 +76,18 @@ export const UpdateUser = async (props: UpdateProfile) => {
       error.response?.data || error.message
     );
     throw error.response?.data || error;
+  }
+};
+
+export const getUser = async (token: string) => {
+  try {
+    const response = await axiosAuth.get('/auth/profile', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
   }
 };

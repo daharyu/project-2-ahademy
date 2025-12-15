@@ -1,19 +1,21 @@
 'use client';
+import { UserData } from '@/entities/auth';
+import { useLoginUser } from '@/hooks/checkLoginUser';
+import { useGetProfile } from '@/hooks/updateUserMutation';
+import OutImage from '@/public/images/arrow-circle-broken-left.svg';
 import bagImg from '@/public/images/Bag.svg';
 import normalIcon from '@/public/images/Logo.svg';
-import meImg from '@/public/images/me.svg';
-import OutImage from '@/public/images/arrow-circle-broken-left.svg';
+import meImg from '@/public/images/me.png';
 import whiteIcon from '@/public/images/whiteLogo.svg';
-import { FileText, MapPin } from 'lucide-react';
+import { getCart } from '@/services/resto.service';
+import { useQuery } from '@tanstack/react-query';
+import { FileText } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { getCart } from '@/services/resto.service';
-import { useRouter } from 'next/navigation';
-import { UserData } from '@/entities/auth';
 
 interface HeaderSectionProps {
   isHomePage?: boolean; // true = transparent on top, false = always solid
@@ -24,6 +26,7 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
   const { scrollY } = useScroll();
   const paddingY = useTransform(scrollY, [0, 100], [24, 12], { clamp: true });
   const [showDropdown, setShowDropdown] = useState(false);
+  const { data: getProfile, isLoading: loadingProfile } = useGetProfile();
   const router = useRouter();
   const background = useTransform(
     scrollY,
@@ -35,15 +38,11 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
     [0, 50],
     ['blur(0px)', 'blur(12px)']
   );
-  const [parsedUser, setParsedUser] = useState<UserData>();
+  const parsedUser: UserData | null = useLoginUser();
+  const user = getProfile?.data || null;
 
   useEffect(() => {
     const handleScroll = () => {
-      const user =
-        localStorage.getItem('user') || sessionStorage.getItem('user') || null;
-      const parsedData = user ? JSON.parse(user) : null;
-
-      setParsedUser(parsedData);
       setIsScrolled(window.scrollY > 50);
     };
     handleScroll();
@@ -66,7 +65,7 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
   // if (typeof window === 'undefined') return null;
   const { data, isLoading } = useQuery({
     queryKey: ['cart', parsedUser?.token],
-    queryFn: () => getCart(parsedUser?.token as string),
+    queryFn: () => getCart(parsedUser!.token),
     enabled: !!parsedUser?.token,
   });
   if (isLoading) return null;
@@ -97,7 +96,7 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
               className='size-[40px] md:size-[42px]'
             />
             <h3
-              className={`md:text-display-md text-2xl leading-8 font-extrabold ${isScrolled || !isHomePage ? 'text-neutral-950' : 'text-white'}`}
+              className={`md:blockmd:text-display-md hidden text-2xl leading-8 font-extrabold ${isScrolled || !isHomePage ? 'text-neutral-950' : 'text-white'}`}
             >
               Foody
             </h3>
@@ -136,9 +135,9 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
                 alt='bag'
                 className={`size-7 md:size-8 ${isScrolled || !isHomePage ? '' : 'invert'}`}
               />
-              {cart.cart.length > 0 && (
+              {cart.summary.totalItems > 0 && (
                 <div className='bg-primary-100 absolute top-0 -right-2 flex size-5 items-center justify-center rounded-full text-xs leading-6 font-bold tracking-tight text-white'>
-                  {cart.cart.length}
+                  {cart.summary.totalItems}
                 </div>
               )}
             </div>
@@ -147,69 +146,74 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({ isHomePage = true }) => {
               onClick={handleClick}
             >
               <Image
-                src={meImg}
+                src={user?.avatar || meImg}
                 width={50}
                 height={50}
                 alt='bag'
-                className={`size-10 rounded-full md:size-12`}
+                className={`size-10 rounded-full object-cover md:size-12`}
               />
               <p
                 className={`hidden text-lg leading-8 font-semibold tracking-tight md:block ${isScrolled || !isHomePage ? '' : 'text-white'}`}
               >
-                {parsedUser.user.name}
+                {user?.name}
               </p>
             </div>
           </div>
         )}
-        {showDropdown && (
-          <motion.div
-            className='fixed top-16 right-5 z-50 flex w-[197px] flex-col gap-3 rounded-2xl bg-white p-4 shadow-lg shadow-[#CBCACA40] md:top-20 md:right-24'
-            initial={{ opacity: 0, y: -100, x: 50, scale: 0.3 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              x: 0,
-              scale: 1,
-              transition: { duration: 0.3, ease: 'easeInOut' },
-            }}
+        <motion.div
+          className='fixed top-16 right-5 z-50 flex w-[197px] flex-col gap-3 rounded-2xl bg-white p-4 shadow-lg shadow-[#CBCACA40] md:top-20 md:right-24'
+          initial={{ opacity: 0, y: -100, x: 50, scale: 0.3 }}
+          animate={
+            showDropdown
+              ? {
+                  opacity: 1,
+                  y: 0,
+                  x: 0,
+                  scale: 1,
+                  transition: { duration: 0.1, ease: 'easeInOut' },
+                }
+              : {
+                  opacity: 0,
+                  y: -100,
+                  x: 50,
+                  scale: 0.3,
+                  transition: { duration: 0.1, ease: 'easeInOut' },
+                }
+          }
+        >
+          <div
+            className='flex cursor-pointer gap-2'
+            onClick={() => router.push('/profile')}
           >
-            <div
-              className='flex cursor-pointer gap-2'
-              onClick={() => router.push('/profile')}
-            >
-              <Image
-                src={meImg}
-                width={36}
-                height={36}
-                alt='bag'
-                className={`rounded-full`}
-              />
+            <Image
+              src={user?.avatar || meImg}
+              width={36}
+              height={36}
+              alt='bag'
+              className={`rounded-full`}
+            />
 
-              <p className={`text-md leading-[30px] font-bold tracking-tight`}>
-                {parsedUser?.user.name}
-              </p>
-            </div>
+            <p className={`text-md leading-[30px] font-bold tracking-tight`}>
+              {user?.name}
+            </p>
+          </div>
 
-            {/* HR */}
-            <hr className='w-full border-neutral-200' />
+          {/* HR */}
+          <hr className='w-full border-neutral-200' />
 
-            {/* Delivery Address */}
-            <div className='flex cursor-pointer gap-2'>
-              <MapPin size={20} />
-              <p className='text-sm leading-7 font-medium'>Delivery Address</p>
-            </div>
-            {/* Order */}
+          {/* Order */}
+          <Link href='/profile'>
             <div className='flex cursor-pointer gap-2'>
               <FileText size={20} />
               <p className='text-sm leading-7 font-medium'>My Order</p>
             </div>
-            {/* Logout */}
-            <div className='flex cursor-pointer gap-2' onClick={handleLogout}>
-              <Image src={OutImage} width={20} height={20} alt='out' />
-              <p className='text-sm leading-7 font-medium'>Log Out</p>
-            </div>
-          </motion.div>
-        )}
+          </Link>
+          {/* Logout */}
+          <div className='flex cursor-pointer gap-2' onClick={handleLogout}>
+            <Image src={OutImage} width={20} height={20} alt='out' />
+            <p className='text-sm leading-7 font-medium'>Log Out</p>
+          </div>
+        </motion.div>
       </motion.header>
     </>
   );

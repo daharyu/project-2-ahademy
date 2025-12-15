@@ -1,15 +1,15 @@
 import FooterSection from '@/components/footer';
 import HeaderSection from '@/components/header';
-import CategorySection from './category';
+import CategoryUi from './uiPage';
 
-const HomePage = () => {
+const CategoryPage = () => {
   return (
     <>
-      <HeaderSection />
-      <CategorySection />
+      <HeaderSection isHomePage={false} />
+      <CategoryUi />
       <FooterSection />
     </>
   );
 };
 
-export default HomePage;
+export default CategoryPage;

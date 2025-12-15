@@ -31,7 +31,7 @@ const DisplayPicture = () => {
               width={651}
               height={470}
               alt={resto?.images[0]}
-              className='h-[470px] w-[651px] rounded-2xl object-none'
+              className='h-[470px] w-[651px] rounded-2xl object-cover'
             />
           )}
         </motion.div>
@@ -45,17 +45,17 @@ const DisplayPicture = () => {
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
             className='h-1/2'
           >
-            {resto.images[0] === 'string' ? (
+            {resto.images[1] === 'string' ? (
               <div className='flex h-[302px] w-[529px] items-center justify-center rounded-2xl bg-gray-600'>
                 <p className='text-2xl text-white'>No Image</p>
               </div>
             ) : (
               <Image
-                src={resto?.images[0]}
+                src={resto?.images[1]}
                 width={529}
                 height={302}
-                alt={resto?.images[0]}
-                className='h-[302px] w-[529px] rounded-2xl object-none'
+                alt={resto?.images[1]}
+                className='h-[302px] w-[529px] rounded-2xl object-cover'
               />
             )}
           </motion.div>
@@ -68,27 +68,6 @@ const DisplayPicture = () => {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.35 }}
               className='w-fit'
             >
-              {resto.images[1] === 'string' ? (
-                <div className='flex h-[148px] w-[255px] items-center justify-center rounded-2xl bg-gray-600'>
-                  <p className='text-2xl text-white'>No Image</p>
-                </div>
-              ) : (
-                <Image
-                  src={resto?.images[1]}
-                  width={255}
-                  height={148}
-                  alt={resto?.images[1]}
-                  className='h-[148px] w-[255px] rounded-2xl object-none'
-                />
-              )}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.45 }}
-              className='w-fit'
-            >
               {resto.images[2] === 'string' ? (
                 <div className='flex h-[148px] w-[255px] items-center justify-center rounded-2xl bg-gray-600'>
                   <p className='text-2xl text-white'>No Image</p>
@@ -99,7 +78,28 @@ const DisplayPicture = () => {
                   width={255}
                   height={148}
                   alt={resto?.images[2]}
-                  className='h-[148px] w-[255px] rounded-2xl object-none'
+                  className='h-[148px] w-[255px] rounded-2xl object-cover'
+                />
+              )}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.45 }}
+              className='w-fit'
+            >
+              {resto.images[3] === 'string' ? (
+                <div className='flex h-[148px] w-[255px] items-center justify-center rounded-2xl bg-gray-600'>
+                  <p className='text-2xl text-white'>No Image</p>
+                </div>
+              ) : (
+                <Image
+                  src={resto?.images[3]}
+                  width={255}
+                  height={148}
+                  alt={resto?.images[3]}
+                  className='h-[148px] w-[255px] rounded-2xl object-cover'
                 />
               )}
             </motion.div>

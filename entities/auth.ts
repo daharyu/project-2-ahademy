@@ -13,17 +13,22 @@ export type AuthLogin = {
 export type UpdateProfile = {
   name: string | undefined;
   phone: string | undefined;
-  currentPassword: string | undefined;
-  newPassword: string | undefined;
+  email: string | undefined;
+  avatar: string | undefined;
+};
+
+export type UserProfileData = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt: string;
 };
 
 export type UserData = {
-  user: {
-    id: string | number;
-    name: string;
-    email: string;
-    phone: string;
-    createdAt: string;
-  };
   token: string;
+  user: UserProfileData;
 };

@@ -4,7 +4,7 @@ import { Star } from 'lucide-react';
 import { useRestoDetail } from './getData';
 import CustomCard from '@/components/customCard';
 import Image from 'next/image';
-import imgMe from '@/public/images/me.svg';
+import imgMe from '@/public/images/me.png';
 import { formatDateID } from './neededHook';
 
 const ReviewSection = () => {
@@ -38,7 +38,7 @@ const ReviewSection = () => {
               {/* Profile */}
               <div className='flex gap-3'>
                 <Image
-                  src={imgMe}
+                  src={review.user.avatar || imgMe}
                   width={50}
                   height={50}
                   alt='profile'

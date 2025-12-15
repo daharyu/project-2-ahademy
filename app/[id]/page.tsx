@@ -33,8 +33,8 @@ const DetailPage = () => {
             {/* Logo */}
             <Image
               src={resto.logo}
-              width={1}
-              height={1}
+              width={1000}
+              height={1000}
               alt='line'
               className='size-[90px] w-fit rounded-full md:size-[120px]'
             />
