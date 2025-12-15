@@ -8,7 +8,7 @@ import { getAllResto } from '@/services/resto.service';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 const RecommendSection = () => {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =

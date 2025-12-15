@@ -6,14 +6,12 @@ import { Input } from '@/components/ui/input';
 import { UserProfileData, UpdateProfile as Profile } from '@/entities/auth';
 import { useGetProfile, useUpdateProfile } from '@/hooks/updateUserMutation';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import meImg from '@/public/images/me.png';
 
 type UpdatePayload = Profile | FormData;
 
 const UpdateProfile = () => {
-  const router = useRouter();
   const { data: profileResponse, isLoading } = useGetProfile();
   const { mutateAsync: updateProfile } = useUpdateProfile();
 

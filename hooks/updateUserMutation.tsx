@@ -1,4 +1,4 @@
-import { UpdateProfile, UserData, UserProfileData } from '@/entities/auth';
+import { UpdateProfile, UserData } from '@/entities/auth';
 import { getUser, UpdateUser } from '@/services/users.service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLoginUser } from './checkLoginUser';

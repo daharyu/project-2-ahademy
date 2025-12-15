@@ -11,7 +11,6 @@ import { CheckOut, getCart as getCartApi } from '@/entities/resto';
 import {
   useAddtoCheckout,
   useDeleteEntireCartMutation,
-  useDeleteToCartMutation,
 } from '@/hooks/cartMutation';
 import { transformFullCartToCheckOut } from '@/hooks/cartToCheckout';
 import { useLoginUser } from '@/hooks/checkLoginUser';
@@ -23,9 +22,9 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { formatRupiah } from '../[id]/neededHook';
 import { bankData } from '../constants/bankData';
-import { toast } from 'sonner';
 
 const CheckoutPage = () => {
   const parsedUser: UserData | null = useLoginUser();
